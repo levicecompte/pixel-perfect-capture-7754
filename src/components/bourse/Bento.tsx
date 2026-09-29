@@ -28,14 +28,14 @@ function MainChart() {
     const r = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - r.left) / r.width) * W;
     const idx = Math.min(values.length - 1, Math.max(0, Math.round((x / W) * (values.length - 1))));
-    const y = 10 + (1 - (values[idx] - min) / (max - min || 1)) * (H - 20);
+    const y = 10 + (1 - ((values[idx] ?? min) - min) / (max - min || 1)) * (H - 20);
     setCross({ x: (idx / (values.length - 1)) * W, y });
   };
 
   const hovered =
-    cross !== null
+    (cross !== null
       ? values[Math.round((cross.x / W) * (values.length - 1))]
-      : values[values.length - 1];
+      : values[values.length - 1]) ?? 0;
 
   return (
     <div className="glass glass-hover rounded-3xl p-5 sm:p-6 lg:col-span-8">
