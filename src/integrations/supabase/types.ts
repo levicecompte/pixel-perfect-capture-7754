@@ -14,7 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      yahoo_finance_dlq: {
+        Row: {
+          created_at: string
+          error: string
+          id: string
+          idempotency_key: string | null
+          payload: Json | null
+        }
+        Insert: {
+          created_at?: string
+          error: string
+          id?: string
+          idempotency_key?: string | null
+          payload?: Json | null
+        }
+        Update: {
+          created_at?: string
+          error?: string
+          id?: string
+          idempotency_key?: string | null
+          payload?: Json | null
+        }
+        Relationships: []
+      }
+      yahoo_finance_history: {
+        Row: {
+          attempts: number
+          consumed_at: string | null
+          created_at: string
+          currency: string | null
+          id: string
+          idempotency_key: string
+          last_error: string | null
+          market_cap: number | null
+          raw_response_json: Json | null
+          regular_market_change: number | null
+          regular_market_price: number | null
+          status: string
+          symbol: string
+          timestamp_appel: string
+          volume: number | null
+        }
+        Insert: {
+          attempts?: number
+          consumed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          idempotency_key: string
+          last_error?: string | null
+          market_cap?: number | null
+          raw_response_json?: Json | null
+          regular_market_change?: number | null
+          regular_market_price?: number | null
+          status?: string
+          symbol: string
+          timestamp_appel: string
+          volume?: number | null
+        }
+        Update: {
+          attempts?: number
+          consumed_at?: string | null
+          created_at?: string
+          currency?: string | null
+          id?: string
+          idempotency_key?: string
+          last_error?: string | null
+          market_cap?: number | null
+          raw_response_json?: Json | null
+          regular_market_change?: number | null
+          regular_market_price?: number | null
+          status?: string
+          symbol?: string
+          timestamp_appel?: string
+          volume?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
