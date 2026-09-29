@@ -47,7 +47,7 @@ export async function callYahooFinance(symbol: string): Promise<YahooFinanceQuot
   };
   const result = json.chart?.result?.[0];
   if (!result?.meta) throw new Error(json.chart?.error?.description ?? "Symbole introuvable");
-  const m = result.meta as Record<string, number | string | undefined>;
+  const m = result.meta as { symbol?: string; regularMarketPrice?: number; chartPreviousClose?: number; regularMarketTime?: number; currency?: string; marketCap?: number; regularMarketVolume?: number };
   const price = typeof m.regularMarketPrice === "number" ? m.regularMarketPrice : null;
   const prev = typeof m.chartPreviousClose === "number" ? m.chartPreviousClose : null;
   const vols = result.indicators?.quote?.[0]?.volume ?? [];
@@ -57,7 +57,7 @@ export async function callYahooFinance(symbol: string): Promise<YahooFinanceQuot
     symbol: String(m.symbol ?? symbol).toUpperCase(),
     regularMarketPrice: price,
     regularMarketChange: price != null && prev != null ? +(price - prev).toFixed(4) : null,
-    currency: (m.currency as string) ?? null,
+    currency: m.currency ?? null,
     marketCap: typeof m.marketCap === "number" ? m.marketCap : null,
     volume: (typeof m.regularMarketVolume === "number" ? m.regularMarketVolume : lastVol) as number | null,
     timestampAppel: ts.toISOString(),
