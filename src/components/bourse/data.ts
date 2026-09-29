@@ -78,7 +78,7 @@ export const CITIES = [
   { name: "Paris", x: 49, y: 31 },
   { name: "New York", x: 26, y: 36 },
   { name: "Tokyo", x: 84, y: 38 },
-  { name: "Londres", x: 47, y: 28 },
+  { name: "Londres", x: 44, y: 24 },
 ];
 
 // Sparse dot-map grid approximating world landmasses (x%, y%).

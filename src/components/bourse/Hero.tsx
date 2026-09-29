@@ -140,7 +140,7 @@ export function Hero() {
         </motion.div>
         <motion.div
           style={{ y: yBull }}
-          className="absolute -right-10 top-1/2 hidden h-[26rem] w-[26rem] -translate-y-1/2 lg:block"
+          className="absolute right-0 top-1/2 hidden h-[24rem] w-[24rem] -translate-y-1/2 lg:block"
         >
           <GlassBull />
         </motion.div>
