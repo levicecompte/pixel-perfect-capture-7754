@@ -51,9 +51,15 @@ export function Navbar() {
           />
         </div>
 
+        <a
+          href="/historique"
+          className="ml-auto rounded-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground md:ml-0"
+        >
+          Historique
+        </a>
         <button
           type="button"
-          className="btn-neon ml-auto rounded-full px-5 py-2.5 text-sm md:ml-0"
+          className="btn-neon rounded-full px-5 py-2.5 text-sm"
         >
           Dashboard
         </button>

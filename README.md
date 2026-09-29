@@ -27,3 +27,7 @@ npm run dev
 - TypeScript
 - React
 - Tailwind CSS
+
+## Yahoo Finance Queue
+
+The `/historique` page calls Yahoo Finance, publishes each quote to a queue (`yahoo_finance_history`, status produced → consumed / failed), retries 3× with exponential backoff, dedupes on `symbol + timestamp`, and routes failures to `yahoo_finance_dlq`. Kafka/docker is not used: the hosting runtime can't keep Kafka connections open.
