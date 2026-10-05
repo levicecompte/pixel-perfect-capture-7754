@@ -4,13 +4,8 @@ import { z } from "zod";
 const schema = z.object({
   period: z.enum(["1D", "1W", "1M", "1Y"]),
   positions: z.array(z.object({
-    symbol: z.string().regex(/^[A-Za-z0-9.^=-]{1,20}$/),
-    name: z.string().max(80),
+    symbol: z.enum(["MC", "RMS", "AAPL", "TTE", "NVDA", "AIR", "OR", "SAN", "BNP", "BTC", "TSLA", "SU"]),
     quantity: z.number().positive().finite().max(1e9),
-    price: z.number().positive().finite().max(1e12),
-    currency: z.string().regex(/^[A-Z]{3}$/),
-    changePct: z.number().finite().min(-100).max(10000),
-    marketTime: z.number().finite().nullable(),
   })).min(1).max(20),
 });
 
@@ -30,7 +25,18 @@ export const Route = createFileRoute("/api/analyse-portefeuille")({
         catch { return Response.json({ error: "Vérifiez les positions et réessayez." }, { status: 400 }); }
         try {
           const { analyzePortfolio } = await import("@/lib/ai/portfolio.server");
-          const { result, runIdFetch } = analyzePortfolio(input);
+          const { getMarketSnapshot } = await import("@/lib/market.functions");
+          const { data: quotes } = await getMarketSnapshot(input.period);
+          const { POSITIONS } = await import("@/components/bourse/data");
+          const enriched = input.positions.map(h => {
+            const quote = quotes[h.symbol];
+            const label = POSITIONS.find(p => p.ticker === h.symbol);
+            if (!quote || !label) return null;
+            const currency = quote.currency ?? (["AAPL", "NVDA", "BTC", "TSLA"].includes(h.symbol) ? "USD" : "EUR");
+            return { symbol: h.symbol, name: label.name, quantity: h.quantity, price: quote.last, currency, changePct: quote.changePct, marketTime: quote.marketTime ?? null };
+          });
+          if (enriched.some(p => !p)) return Response.json({ error: "Cours Yahoo Finance indisponibles pour une ou plusieurs positions." }, { status: 503 });
+          const { result, runIdFetch } = analyzePortfolio({ period: input.period, positions: enriched.filter((p): p is NonNullable<typeof p> => p !== null) });
           const iterator = result.textStream[Symbol.asyncIterator]();
           // Wait for the first text or an upstream error before committing response headers.
           const first = await iterator.next();

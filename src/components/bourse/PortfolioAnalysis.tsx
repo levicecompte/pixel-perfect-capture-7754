@@ -31,12 +31,7 @@ export function PortfolioAnalysis() {
 
   const analyze = async () => {
     if (!canAnalyze) return;
-    const positions = holdings.map(h => {
-      const quote = market?.data[h.symbol as MarketKey];
-      const label = symbols.find(s => s.key === h.symbol);
-      if (!quote || !label) return null;
-      return { symbol: h.symbol, name: label.name, quantity: Number(h.quantity), price: quote.last, currency: quote.currency ?? (h.symbol === "AAPL" || h.symbol === "NVDA" || h.symbol === "BTC" || h.symbol === "TSLA" ? "USD" : "EUR"), changePct: quote.changePct, marketTime: quote.marketTime ?? null };
-    }).filter((p): p is NonNullable<typeof p> => p !== null);
+    const positions = holdings.map(h => ({ symbol: h.symbol, quantity: Number(h.quantity) }));
     const abort = new AbortController();
     setController(abort);
     setPending(true); setError(""); setAnswer(""); setAnalyzedPeriod(tf);
