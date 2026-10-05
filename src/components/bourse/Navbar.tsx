@@ -3,6 +3,7 @@ import { TICKER_ITEMS } from "./data";
 function TickerRow() {
   return (
     <div className="flex shrink-0 items-center gap-8 pr-8">
+      <span className="shrink-0 rounded border border-danger px-1.5 py-0.5 font-mono text-[10px] font-bold text-danger" title="Le bandeau défilant affiche des valeurs de démonstration">DÉMO</span>
       {TICKER_ITEMS.map((item) => {
         const up = item.change >= 0;
         return (

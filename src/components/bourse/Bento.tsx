@@ -66,7 +66,7 @@ function MainChart() {
               {chg >= 0 ? "+" : ""}{chg.toFixed(2)}%
             </span>
             <span className="font-mono text-[10px] text-muted-foreground">
-              {isFetching ? "MAJ…" : market?.cached ? "Yahoo • cache" : cac ? "Yahoo • live" : "démo"}
+              {!cac ? "Données de démonstration" : isFetching ? "MAJ…" : market?.cached ? "Yahoo • cache" : "Yahoo • cours"}
             </span>
           </div>
         </div>

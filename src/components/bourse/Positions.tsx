@@ -15,8 +15,8 @@ export function Positions() {
     const price = live?.last ?? num(p.price);
     const value = qty * price;
     const closes = live?.closes;
-    const d24 = closes && closes.length > 1 && tf === "1D" ? live!.changePct : p.d24;
-    return { ...p, price, value, d24, pnl: live?.changePct ?? p.pnl, closes, cur: live?.currency ?? "EUR" };
+    const d24 = closes && closes.length > 1 && tf === "1D" ? live.changePct : p.d24;
+    return { ...p, price, value, d24, pnl: live?.changePct ?? p.pnl, closes, cur: live?.currency ?? "EUR", demo: !live };
   });
   const total = rows.reduce((a, r) => a + r.value, 0);
   return (
@@ -61,7 +61,7 @@ export function Positions() {
                           {p.ticker[0]}
                         </span>
                         <div>
-                          <p className="font-mono text-sm font-bold">{p.ticker}</p>
+                          <p className="font-mono text-sm font-bold">{p.ticker}{p.demo && <span className="ml-2 text-[10px] font-normal text-danger">DÉMO</span>}</p>
                           <p className="text-[11px] text-muted-foreground">{p.name}</p>
                         </div>
                       </div>
@@ -98,7 +98,7 @@ export function Positions() {
           BOURSE<span style={{ color: "var(--neon-cyan)" }}>.</span>
         </p>
         <p className="text-[11px] text-muted-foreground">
-          Données de démonstration — aucun conseil en investissement.
+          Cours Yahoo Finance selon disponibilité ; valeurs signalées DÉMO = données de démonstration. Aucun conseil en investissement.
         </p>
       </footer>
     </section>

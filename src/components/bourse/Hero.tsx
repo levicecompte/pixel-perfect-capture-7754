@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { series, toPath } from "./data";
+import { useMarket } from "./useMarket";
+import { MARKET_SYMBOLS } from "@/lib/market.functions";
 
 const HERO_SERIES = series(101, 60, 60, 160, 0.09);
 
@@ -108,6 +110,15 @@ function GlassBull() {
 }
 
 export function Hero() {
+  const { data: market, isPending, isFetching } = useMarket();
+  const liveCount = Object.keys(market?.data ?? {}).length;
+  const mixed = liveCount > 0 && liveCount < Object.keys(MARKET_SYMBOLS).length;
+  const lastQuoteTime = Math.max(0, ...Object.values(market?.data ?? {}).map((quote) => quote?.marketTime ?? 0));
+  const lastUpdate = lastQuoteTime > 0
+    ? new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", dateStyle: "medium", timeStyle: "short" }).format(lastQuoteTime * 1000)
+    : liveCount > 0 && market?.cachedAt
+      ? new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", dateStyle: "medium", timeStyle: "short" }).format(market.cachedAt)
+      : null;
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const yChart = useTransform(scrollYProgress, [0, 1], [0, -120]);
@@ -151,13 +162,15 @@ export function Hero() {
           initial={{ opacity: 0, filter: "blur(10px)" }}
           animate={{ opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: 0.6 }}
-          className="glass inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[11px] uppercase tracking-[0.22em] text-muted-foreground"
+          className="glass inline-flex max-w-full flex-wrap items-center gap-x-2 gap-y-1 rounded-lg px-4 py-2 font-mono text-xs text-foreground"
         >
           <span
-            className="animate-neon-pulse h-1.5 w-1.5 rounded-full"
-            style={{ background: "var(--neon-emerald)" }}
+            className={`h-2 w-2 shrink-0 rounded-full ${liveCount === 0 || mixed ? "bg-danger" : "bg-emerald"}`}
           />
-          Marchés ouverts • Temps réel
+          <span>{liveCount === 0 ? "Données de démonstration" : mixed ? "Yahoo Finance + données de démonstration" : "Yahoo Finance"}</span>
+          {lastUpdate && <span className="text-muted-foreground">· Dernier cours : {lastUpdate} (Paris)</span>}
+          {isPending && <span className="text-muted-foreground">· Connexion Yahoo…</span>}
+          {isFetching && !isPending && <span className="text-muted-foreground">· Actualisation…</span>}
         </motion.span>
 
         <motion.h1
