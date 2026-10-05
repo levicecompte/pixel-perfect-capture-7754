@@ -1,8 +1,24 @@
 import { motion } from "motion/react";
 import { POSITIONS } from "./data";
 import { Sparkline } from "./Sparkline";
+import { fmt, useMarket, useTimeframe } from "./useMarket";
+import type { MarketKey } from "@/lib/market.functions";
+
+const num = (s: string) => parseFloat(s.replace(/\s/g, ""));
 
 export function Positions() {
+  const { data: market } = useMarket();
+  const { tf } = useTimeframe();
+  const rows = POSITIONS.map((p) => {
+    const live = market?.data[p.ticker as MarketKey];
+    const qty = num(p.value) / num(p.price);
+    const price = live?.last ?? num(p.price);
+    const value = qty * price;
+    const closes = live?.closes;
+    const d24 = closes && closes.length > 1 && tf === "1D" ? live!.changePct : p.d24;
+    return { ...p, price, value, d24, pnl: live?.changePct ?? p.pnl, closes, cur: live?.currency ?? "EUR" };
+  });
+  const total = rows.reduce((a, r) => a + r.value, 0);
   return (
     <section className="mx-auto w-full max-w-7xl px-4 pb-28 md:pb-16">
       <motion.div
@@ -17,7 +33,7 @@ export function Positions() {
             Positions <span className="text-muted-foreground">• 12 actifs</span>
           </h2>
           <span className="font-mono text-xs text-muted-foreground">
-            Valeur totale <span className="text-foreground">625 804 €</span>
+            Valeur totale <span className="text-foreground">{fmt(total, 0)} €</span>
           </span>
         </div>
 
@@ -30,11 +46,11 @@ export function Positions() {
                 <th className="px-3 py-3 font-normal">24h</th>
                 <th className="px-3 py-3 font-normal">Valeur</th>
                 <th className="px-3 py-3 font-normal">Tendance</th>
-                <th className="px-3 py-3 text-right font-normal">P&amp;L</th>
+                <th className="px-3 py-3 text-right font-normal">Var. {tf}</th>
               </tr>
             </thead>
             <tbody>
-              {POSITIONS.map((p) => {
+              {rows.map((p) => {
                 const up24 = p.d24 >= 0;
                 const upPnl = p.pnl >= 0;
                 return (
@@ -50,7 +66,7 @@ export function Positions() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-3 py-3 font-mono text-sm">{p.price} €</td>
+                    <td className="px-3 py-3 font-mono text-sm">{fmt(p.price)} {p.cur === "EUR" ? "€" : p.cur === "USD" ? "$" : p.cur}</td>
                     <td
                       className="px-3 py-3 font-mono text-sm"
                       style={{ color: up24 ? "var(--neon-emerald)" : "var(--neon-red)" }}
@@ -58,9 +74,9 @@ export function Positions() {
                       {up24 ? "+" : ""}
                       {p.d24.toFixed(2)}%
                     </td>
-                    <td className="px-3 py-3 font-mono text-sm">{p.value} €</td>
+                    <td className="px-3 py-3 font-mono text-sm">{fmt(p.value, 0)} €</td>
                     <td className="px-3 py-3">
-                      <Sparkline seed={p.seed} up={upPnl} />
+                      <Sparkline seed={p.seed} up={upPnl} values={p.closes} />
                     </td>
                     <td
                       className="rounded-r-2xl px-3 py-3 text-right font-mono text-sm font-semibold"

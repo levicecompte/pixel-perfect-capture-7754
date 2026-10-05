@@ -5,13 +5,15 @@ export function Sparkline({
   up,
   width = 84,
   height = 28,
+  values: real,
 }: {
+  values?: number[] | undefined;
   seed: number;
   up: boolean;
   width?: number;
   height?: number;
 }) {
-  const values = series(seed, 28, 100, up ? 118 : 86, 0.05);
+  const values = real && real.length > 1 ? real : series(seed, 28, 100, up ? 118 : 86, 0.05);
   const color = up ? "var(--neon-emerald)" : "var(--neon-red)";
   return (
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
