@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as HistoriqueRouteImport } from './routes/historique'
+import { Route as ApiAnalysePortefeuilleRouteImport } from './routes/api/analyse-portefeuille'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const HistoriqueRoute = HistoriqueRouteImport.update({
   path: '/historique',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAnalysePortefeuilleRoute = ApiAnalysePortefeuilleRouteImport.update({
+  id: '/api/analyse-portefeuille',
+  path: '/api/analyse-portefeuille',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/historique': typeof HistoriqueRoute
+  '/api/analyse-portefeuille': typeof ApiAnalysePortefeuilleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/historique': typeof HistoriqueRoute
+  '/api/analyse-portefeuille': typeof ApiAnalysePortefeuilleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/historique': typeof HistoriqueRoute
+  '/api/analyse-portefeuille': typeof ApiAnalysePortefeuilleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/historique'
+  fullPaths: '/' | '/historique' | '/api/analyse-portefeuille'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/historique'
-  id: '__root__' | '/' | '/historique'
+  to: '/' | '/historique' | '/api/analyse-portefeuille'
+  id: '__root__' | '/' | '/historique' | '/api/analyse-portefeuille'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   HistoriqueRoute: typeof HistoriqueRoute
+  ApiAnalysePortefeuilleRoute: typeof ApiAnalysePortefeuilleRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoriqueRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/analyse-portefeuille': {
+      id: '/api/analyse-portefeuille'
+      path: '/api/analyse-portefeuille'
+      fullPath: '/api/analyse-portefeuille'
+      preLoaderRoute: typeof ApiAnalysePortefeuilleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   HistoriqueRoute: HistoriqueRoute,
+  ApiAnalysePortefeuilleRoute: ApiAnalysePortefeuilleRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

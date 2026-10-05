@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { POSITIONS } from "./data";
 import { Sparkline } from "./Sparkline";
+import { PortfolioAnalysis } from "./PortfolioAnalysis";
 import { fmt, useMarket, useTimeframe } from "./useMarket";
 import type { MarketKey } from "@/lib/market.functions";
 
@@ -102,6 +103,7 @@ export function Positions() {
           </table>
         </div>
       </motion.div>
+      <PortfolioAnalysis />
 
       <footer className="mt-10 flex flex-col items-center gap-2 text-center">
         <p className="font-display text-sm font-bold">

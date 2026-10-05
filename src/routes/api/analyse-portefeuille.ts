@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { analyzePortfolio } from "@/lib/ai/portfolio.server";
 
 const schema = z.object({
   period: z.enum(["1D", "1W", "1M", "1Y"]),
@@ -30,6 +29,7 @@ export const Route = createFileRoute("/api/analyse-portefeuille")({
         try { input = schema.parse(await request.json()); }
         catch { return Response.json({ error: "Vérifiez les positions et réessayez." }, { status: 400 }); }
         try {
+          const { analyzePortfolio } = await import("@/lib/ai/portfolio.server");
           const { result, runIdFetch } = analyzePortfolio(input);
           const iterator = result.textStream[Symbol.asyncIterator]();
           // Wait for the first text or an upstream error before committing response headers.
