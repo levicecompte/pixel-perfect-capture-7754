@@ -11,3 +11,4 @@
 - Yahoo Finance queue is a Kafka-equivalent in Lovable Cloud (tables yahoo_finance_history + yahoo_finance_dlq, src/lib/yahoo-queue.*) — Kafka can't run on the Worker runtime.
 - Market data per timeframe comes from Yahoo Finance via getMarketData (src/lib/market.functions.ts) with a per-timeframe server memory cache + React Query; fake data in data.ts is only a fallback — keeps the page usable if Yahoo is down.
 - Portfolio values convert USD quotes to EUR with Yahoo's USD/EUR quote from the shared market response; without a valid rate, leave the EUR total unavailable rather than mix currencies.
+- Portfolio analysis calls Lovable AI Gateway only from the server route and streams its answer; only Yahoo-backed positions are submitted, so synthetic market data never becomes an unmarked AI claim.

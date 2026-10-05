@@ -1,0 +1,3 @@
+- [ ] Ajouter la saisie des positions et de la période d'analyse dans le tableau de bord.
+- [ ] Relier l'analyse des mouvements et risques à AI Gateway avec contrôle des erreurs.
+- [ ] Vérifier le parcours complet sur ordinateur et mobile.
