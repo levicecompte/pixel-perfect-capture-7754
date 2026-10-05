@@ -57,12 +57,6 @@ export function Navbar() {
         >
           Historique
         </a>
-        <button
-          type="button"
-          className="btn-neon rounded-full px-5 py-2.5 text-sm"
-        >
-          Dashboard
-        </button>
       </nav>
     </header>
   );

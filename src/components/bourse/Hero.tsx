@@ -180,22 +180,6 @@ export function Hero() {
           Trading terminal inspiré du futur.
         </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, filter: "blur(10px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-10 flex flex-wrap items-center gap-4"
-        >
-          <button type="button" className="btn-neon rounded-full px-7 py-3.5 text-sm">
-            Ouvrir le terminal
-          </button>
-          <button
-            type="button"
-            className="glass glass-hover rounded-full px-7 py-3.5 text-sm text-foreground"
-          >
-            Voir les marchés
-          </button>
-        </motion.div>
       </div>
     </section>
   );
