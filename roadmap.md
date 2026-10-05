@@ -1,0 +1,4 @@
+- [x] Ajouter la saisie des positions et de la période d'analyse dans le tableau de bord.
+- [x] Relier l'analyse des mouvements et risques à AI Gateway avec contrôle des erreurs.
+- [x] Vérifier le parcours complet sur ordinateur et mobile.
+- [x] Afficher le montant en euros et le taux USD/EUR par ligne cotée en dollars.

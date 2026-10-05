@@ -50,11 +50,9 @@ async function fetchSymbol(symbol: string, range: string, interval: string): Pro
   }
 }
 
-export const getMarketData = createServerFn({ method: "GET" })
-  .inputValidator((d) => z.object({ tf: z.enum(["1D", "1W", "1M", "1Y"]) }).parse(d))
-  .handler(async ({ data }) => {
-    const cfg = RANGES[data.tf];
-    const hit = cache.get(data.tf);
+export async function getMarketSnapshot(tf: keyof typeof RANGES) {
+    const cfg = RANGES[tf];
+    const hit = cache.get(tf);
     if (hit && Date.now() - hit.at < cfg.ttl) return { data: hit.data, cachedAt: hit.at, cached: true };
     const entries = await Promise.all(
       (Object.keys(MARKET_SYMBOLS) as MarketKey[]).map(async (k) => [k, await fetchSymbol(MARKET_SYMBOLS[k], cfg.range, cfg.interval)] as const),
@@ -63,6 +61,10 @@ export const getMarketData = createServerFn({ method: "GET" })
     for (const [k, v] of entries) if (v) result[k] = v;
     if (Object.keys(result).length === 0 && hit) return { data: hit.data, cachedAt: hit.at, cached: true }; // stale fallback
     const at = Date.now();
-    if (Object.keys(result).length) cache.set(data.tf, { at, data: result });
+    if (Object.keys(result).length) cache.set(tf, { at, data: result });
     return { data: result, cachedAt: at, cached: false };
-  });
+}
+
+export const getMarketData = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ tf: z.enum(["1D", "1W", "1M", "1Y"]) }).parse(d))
+  .handler(async ({ data }) => getMarketSnapshot(data.tf));

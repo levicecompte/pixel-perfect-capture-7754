@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { POSITIONS } from "./data";
 import { Sparkline } from "./Sparkline";
+import { PortfolioAnalysis } from "./PortfolioAnalysis";
 import { fmt, useMarket, useTimeframe } from "./useMarket";
 import type { MarketKey } from "@/lib/market.functions";
 
@@ -63,6 +64,7 @@ export function Positions() {
               {rows.map((p) => {
                 const up24 = p.d24 >= 0;
                 const upPnl = p.pnl >= 0;
+                const convertedFromUsd = p.cur === "USD";
                 return (
                   <tr key={p.ticker} className="group transition-colors hover:bg-white/[0.03]">
                     <td className="rounded-l-2xl px-3 py-3">
@@ -84,7 +86,12 @@ export function Positions() {
                       {up24 ? "+" : ""}
                       {p.d24.toFixed(2)}%
                     </td>
-                    <td className="px-3 py-3 font-mono text-sm">{p.value === null ? "—" : `${fmt(p.value, 0)} €`}</td>
+                    <td className="px-3 py-3 font-mono text-sm">
+                      <span>{p.value === null ? "—" : `${fmt(p.value, 0)} €`}</span>
+                      {convertedFromUsd && <span className="mt-1 block text-[11px] font-normal text-muted-foreground">
+                        {validRate ? `1 USD = ${fmt(dollarToEuro, 4)} EUR` : "Taux USD/EUR indisponible"}
+                      </span>}
+                    </td>
                     <td className="px-3 py-3">
                       <Sparkline seed={p.seed} up={upPnl} values={p.closes} />
                     </td>
@@ -102,6 +109,7 @@ export function Positions() {
           </table>
         </div>
       </motion.div>
+      <PortfolioAnalysis />
 
       <footer className="mt-10 flex flex-col items-center gap-2 text-center">
         <p className="font-display text-sm font-bold">
