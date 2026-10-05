@@ -168,7 +168,7 @@ export function Hero() {
             className={`h-2 w-2 shrink-0 rounded-full ${liveCount === 0 || mixed ? "bg-danger" : "bg-emerald"}`}
           />
           <span>{liveCount === 0 ? "Données de démonstration" : mixed ? "Yahoo Finance + données de démonstration" : "Yahoo Finance"}</span>
-          {lastUpdate && <span className="text-muted-foreground">· Dernier cours : {lastUpdate} (Paris)</span>}
+          {lastUpdate && <span className="text-muted-foreground">· Dernière mise à jour : {lastUpdate} (Paris)</span>}
           {isPending && <span className="text-muted-foreground">· Connexion Yahoo…</span>}
           {isFetching && !isPending && <span className="text-muted-foreground">· Actualisation…</span>}
         </motion.span>

@@ -43,7 +43,7 @@ async function fetchSymbol(symbol: string, range: string, interval: string): Pro
     const last = r?.meta?.regularMarketPrice ?? closes[closes.length - 1]!;
     const base = range === "1d" ? (r?.meta?.chartPreviousClose ?? closes[0]!) : closes[0]!;
     const marketTime = r?.meta?.regularMarketTime ?? r?.timestamp?.at(-1);
-    return { closes, volumes, last, changePct: ((last - base) / base) * 100, currency: r?.meta?.currency ?? null, marketTime };
+    return { closes, volumes, last, changePct: ((last - base) / base) * 100, currency: r?.meta?.currency ?? null, ...(marketTime === undefined ? {} : { marketTime }) };
   } catch {
     return null;
   }
