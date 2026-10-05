@@ -1,24 +1,31 @@
 import { TICKER_ITEMS } from "./data";
+import { fmt, useMarket } from "./useMarket";
+import type { MarketKey } from "@/lib/market.functions";
+
+const TICKER_SYMBOLS: MarketKey[] = ["CAC", "SPX", "NDX", "BTC", "STOXX", "GOLD"];
 
 function TickerRow() {
+  const { data: market } = useMarket();
   return (
     <div className="flex shrink-0 items-center gap-8 pr-8">
-      <span className="shrink-0 rounded border border-danger px-1.5 py-0.5 font-mono text-[10px] font-bold text-danger" title="Le bandeau défilant affiche des valeurs de démonstration">DÉMO</span>
-      {TICKER_ITEMS.map((item) => {
-        const up = item.change >= 0;
+      {TICKER_ITEMS.map((item, index) => {
+        const quote = market?.data[TICKER_SYMBOLS[index] ?? "CAC"];
+        const change = quote?.changePct ?? item.change;
+        const up = change >= 0;
         return (
           <div key={item.label} className="flex items-center gap-2 whitespace-nowrap">
             <span className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
               {item.label}
             </span>
-            <span className="font-mono text-xs font-semibold text-foreground">{item.value}</span>
+            <span className="font-mono text-xs font-semibold text-foreground">{quote ? fmt(quote.last) : item.value}</span>
             <span
               className="animate-neon-pulse font-mono text-[11px] font-bold"
               style={{ color: up ? "var(--neon-emerald)" : "var(--neon-red)" }}
             >
               {up ? "▲" : "▼"} {up ? "+" : ""}
-              {item.change.toFixed(2)}%
+              {change.toFixed(2)}%
             </span>
+            {!quote && <span className="rounded border border-danger px-1 font-mono text-[10px] font-bold text-danger" title="Données de démonstration">DÉMO</span>}
           </div>
         );
       })}
