@@ -64,6 +64,7 @@ export function Positions() {
               {rows.map((p) => {
                 const up24 = p.d24 >= 0;
                 const upPnl = p.pnl >= 0;
+                const convertedFromUsd = p.cur === "USD";
                 return (
                   <tr key={p.ticker} className="group transition-colors hover:bg-white/[0.03]">
                     <td className="rounded-l-2xl px-3 py-3">
@@ -85,7 +86,12 @@ export function Positions() {
                       {up24 ? "+" : ""}
                       {p.d24.toFixed(2)}%
                     </td>
-                    <td className="px-3 py-3 font-mono text-sm">{p.value === null ? "—" : `${fmt(p.value, 0)} €`}</td>
+                    <td className="px-3 py-3 font-mono text-sm">
+                      <span>{p.value === null ? "—" : `${fmt(p.value, 0)} €`}</span>
+                      {convertedFromUsd && <span className="mt-1 block text-[11px] font-normal text-muted-foreground">
+                        {validRate ? `1 USD = ${fmt(dollarToEuro, 4)} EUR` : "Taux USD/EUR indisponible"}
+                      </span>}
+                    </td>
                     <td className="px-3 py-3">
                       <Sparkline seed={p.seed} up={upPnl} values={p.closes} />
                     </td>
