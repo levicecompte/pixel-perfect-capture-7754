@@ -20,7 +20,7 @@ export function analyzePortfolio(input: PortfolioInput, signal?: AbortSignal) {
   const result = streamText({
     model: provider.responses("openai/gpt-6-astra"),
     maxRetries: 0,
-    abortSignal: signal,
+    ...(signal ? { abortSignal: signal } : {}),
     providerOptions: {
       openai: {
         forceReasoning: true,
