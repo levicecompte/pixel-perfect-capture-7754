@@ -44,7 +44,7 @@ export function Positions() {
         <p className="mt-2 font-mono text-[11px] text-muted-foreground">
           {validRate
             ? `Conversion Yahoo Finance · 1 USD = ${fmt(dollarToEuro, 4)} EUR`
-            : "Taux USD/EUR indisponible · valeurs en dollars exclues du total"}
+            : "Taux USD/EUR indisponible · total en euros temporairement indisponible"}
         </p>
 
         <div className="mt-5 overflow-x-auto">
