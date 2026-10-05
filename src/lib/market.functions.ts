@@ -5,7 +5,7 @@ export const MARKET_SYMBOLS = {
   CAC: "^FCHI", SPX: "^GSPC", NDX: "^IXIC", VIX: "^VIX",
   AAPL: "AAPL", NVDA: "NVDA", MC: "MC.PA", TSLA: "TSLA", BTC: "BTC-USD",
   RMS: "RMS.PA", TTE: "TTE.PA", AIR: "AIR.PA", OR: "OR.PA", SAN: "SAN.PA", BNP: "BNP.PA", SU: "SU.PA",
-  STOXX: "^STOXX50E", GOLD: "GC=F",
+  STOXX: "^STOXX50E", GOLD: "GC=F", USDEUR: "USDEUR=X",
 } as const;
 
 export type MarketKey = keyof typeof MARKET_SYMBOLS;
