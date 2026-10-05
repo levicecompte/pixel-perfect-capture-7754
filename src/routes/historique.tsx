@@ -20,7 +20,7 @@ export const Route = createFileRoute("/historique")({
   }),
   loader: ({ context }) => context.queryClient.ensureQueryData(historyQuery),
   component: HistoryPage,
-  errorComponent: ({ error }) => <p className="p-10 text-center">Erreur : {error.message}</p>,
+  errorComponent: ({ error }) => <p className="p-10 text-center">Erreur : {(error as Error).message}</p>,
   notFoundComponent: () => <p className="p-10 text-center">Introuvable</p>,
 });
 

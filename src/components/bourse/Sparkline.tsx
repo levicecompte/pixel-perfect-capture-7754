@@ -7,7 +7,7 @@ export function Sparkline({
   height = 28,
   values: real,
 }: {
-  values?: number[];
+  values?: number[] | undefined;
   seed: number;
   up: boolean;
   width?: number;
