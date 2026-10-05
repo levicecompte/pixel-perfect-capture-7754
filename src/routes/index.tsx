@@ -5,6 +5,8 @@ import { Hero } from "@/components/bourse/Hero";
 import { Bento } from "@/components/bourse/Bento";
 import { Positions } from "@/components/bourse/Positions";
 import { NeonCursor } from "@/components/bourse/Cursor";
+import { useState } from "react";
+import { TimeframeContext, type Timeframe } from "@/components/bourse/useMarket";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,7 +31,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const [tf, setTf] = useState<Timeframe>("1M");
   return (
+    <TimeframeContext.Provider value={{ tf, setTf }}>
     <div className="relative min-h-screen">
       <Backdrop />
       <NeonCursor />
@@ -39,5 +43,6 @@ function Index() {
       <Positions />
       <MobileNav />
     </div>
+    </TimeframeContext.Provider>
   );
 }

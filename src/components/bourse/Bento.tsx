@@ -3,22 +3,29 @@ import { motion } from "motion/react";
 import { CAC_SERIES, CITIES, TIMEFRAMES, TOP_MOVERS, series, toPath } from "./data";
 import { WorldDots } from "./Backdrop";
 import { Sparkline } from "./Sparkline";
+import { fmt, useMarket, useTimeframe } from "./useMarket";
+import type { MarketKey } from "@/lib/market.functions";
 
 const W = 720;
 const H = 300;
 
 function MainChart() {
-  const [tf, setTf] = useState<(typeof TIMEFRAMES)[number]>("1M");
+  const { tf, setTf } = useTimeframe();
+  const { data: market, isFetching } = useMarket();
+  const cac = market?.data.CAC;
   const [cross, setCross] = useState<{ x: number; y: number } | null>(null);
 
-  const values =
+  const values = cac?.closes ?? (
     tf === "1D"
       ? series(3, 120, 8098, 8142.23, 0.002)
       : tf === "1W"
         ? series(9, 120, 8010, 8142.23, 0.004)
         : tf === "1M"
           ? CAC_SERIES
-          : series(15, 120, 7180, 8142.23, 0.009);
+          : series(15, 120, 7180, 8142.23, 0.009));
+  const vols = cac?.volumes;
+  const maxVol = vols ? Math.max(...vols, 1) : 1;
+  const chg = cac?.changePct ?? 0.84;
 
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -46,17 +53,20 @@ function MainChart() {
           </p>
           <div className="mt-2 flex items-center gap-3">
             <span className="font-mono text-3xl font-bold tracking-tight">
-              {hovered.toFixed(2)}
+              {fmt(hovered)}
             </span>
             <span
               className="rounded-full border px-2.5 py-1 font-mono text-xs font-semibold"
               style={{
-                color: "var(--neon-emerald)",
-                background: "rgba(0,255,148,0.14)",
-                borderColor: "rgba(0,255,148,0.3)",
+                color: chg >= 0 ? "var(--neon-emerald)" : "var(--neon-red)",
+                background: chg >= 0 ? "rgba(0,255,148,0.14)" : "rgba(255,59,48,0.14)",
+                borderColor: chg >= 0 ? "rgba(0,255,148,0.3)" : "rgba(255,59,48,0.3)",
               }}
             >
-              +0.84%
+              {chg >= 0 ? "+" : ""}{chg.toFixed(2)}%
+            </span>
+            <span className="font-mono text-[10px] text-muted-foreground">
+              {isFetching ? "MAJ…" : market?.cached ? "Yahoo • cache" : cac ? "Yahoo • live" : "démo"}
             </span>
           </div>
         </div>
@@ -114,20 +124,21 @@ function MainChart() {
           />
         ))}
 
-        {values.map((v, i) =>
-          i % 2 === 0 ? null : (
+        {values.map((v, i) => {
+          const h = vols ? 4 + ((vols[i] ?? 0) / maxVol) * 46 : 10 + ((v * 31) % 40);
+          return i % 2 === 0 && !vols ? null : (
             <rect
               key={i}
               x={(i / values.length) * W}
               width={W / values.length - 1.5}
-              y={H + 50 - (10 + ((v * 31) % 40))}
-              height={10 + ((v * 31) % 40)}
+              y={H + 50 - h}
+              height={h}
               fill={i % 5 === 0 ? "#00FF94" : "#00E5FF"}
               opacity={0.16}
               rx={1}
             />
-          ),
-        )}
+          );
+        })}
 
         <path d={`${d} L${W},${H} L0,${H} Z`} fill="url(#cacFill)" opacity={0.4} />
         <path
@@ -161,6 +172,7 @@ function MainChart() {
 }
 
 function TopMovers() {
+  const { data: market } = useMarket();
   return (
     <div className="glass glass-hover rounded-3xl p-5 sm:p-6 lg:col-span-4">
       <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -168,7 +180,9 @@ function TopMovers() {
       </p>
       <ul className="mt-4 space-y-2">
         {TOP_MOVERS.map((m) => {
-          const up = m.change >= 0;
+          const live = market?.data[m.ticker as MarketKey];
+          const change = live?.changePct ?? m.change;
+          const up = change >= 0;
           return (
             <li
               key={m.ticker}
@@ -182,7 +196,7 @@ function TopMovers() {
                 <p className="truncate text-[11px] text-muted-foreground">{m.name}</p>
               </div>
               <div className="ml-auto flex items-center gap-3">
-                <Sparkline seed={m.seed} up={up} width={60} height={24} />
+                <Sparkline seed={m.seed} up={up} width={60} height={24} values={live?.closes} />
                 <span
                   className="animate-neon-pulse rounded-full border px-2 py-1 font-mono text-[11px] font-semibold"
                   style={{
@@ -192,7 +206,7 @@ function TopMovers() {
                   }}
                 >
                   {up ? "+" : ""}
-                  {m.change.toFixed(2)}%
+                  {change.toFixed(2)}%
                 </span>
               </div>
             </li>
@@ -236,11 +250,18 @@ function WorldCard() {
 }
 
 function StatsCard() {
+  const { data: market } = useMarket();
+  const d = market?.data;
+  const pct = (n: number | undefined, f: number) => {
+    const v = n ?? f;
+    return { change: `${v >= 0 ? "+" : ""}${v.toFixed(2)}%`, up: v >= 0 };
+  };
+  const btc = d?.BTC;
   const stats = [
-    { label: "S&P 500", value: "5 789.10", change: "+0.32%", up: true },
-    { label: "NASDAQ", value: "18 234.60", change: "-0.12%", up: false },
-    { label: "Volatilité VIX", value: "13.84", change: "-2.10%", up: false },
-    { label: "Volume CAC", value: "3.42 Md€", change: "+6.40%", up: true },
+    { label: "S&P 500", value: d?.SPX ? fmt(d.SPX.last) : "5 789,10", ...pct(d?.SPX?.changePct, 0.32) },
+    { label: "NASDAQ", value: d?.NDX ? fmt(d.NDX.last) : "18 234,60", ...pct(d?.NDX?.changePct, -0.12) },
+    { label: "Volatilité VIX", value: d?.VIX ? fmt(d.VIX.last) : "13,84", ...pct(d?.VIX?.changePct, -2.1) },
+    { label: "Bitcoin", value: btc ? fmt(btc.last, 0) + " $" : "67 342 $", ...pct(btc?.changePct, 2.14) },
   ];
   return (
     <div className="glass glass-hover rounded-3xl p-5 sm:p-6 lg:col-span-4">
@@ -266,6 +287,13 @@ function StatsCard() {
 }
 
 export function Bento() {
+  const { data: market } = useMarket();
+  const d = market?.data;
+  const keys: MarketKey[] = ["AAPL", "NVDA", "MC", "TSLA", "BTC", "CAC", "SPX", "NDX"];
+  const ups = keys.filter((k) => (d?.[k]?.changePct ?? 0) > 0).length;
+  const vixAdj = d?.VIX ? -d.VIX.changePct : 0;
+  const score = d ? Math.round(Math.min(95, Math.max(5, (ups / keys.length) * 100 + vixAdj))) : 72;
+  const label = score >= 55 ? "Greed" : score <= 45 ? "Fear" : "Neutre";
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-16">
       <motion.div
@@ -283,13 +311,13 @@ export function Bento() {
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-muted-foreground">
             Sentiment
           </p>
-          <p className="font-display text-4xl font-bold" style={{ color: "var(--neon-emerald)" }}>
-            Greed 72
+          <p className="font-display text-4xl font-bold" style={{ color: score >= 50 ? "var(--neon-emerald)" : "var(--neon-red)" }}>
+            {label} {score}
           </p>
           <div className="mt-4 h-2 w-full rounded-full bg-white/[0.06]">
             <div
               className="h-2 rounded-full"
-              style={{ width: "72%", background: "var(--gradient-action)" }}
+              style={{ width: `${score}%`, background: "var(--gradient-action)" }}
             />
           </div>
         </div>
