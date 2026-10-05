@@ -5,20 +5,25 @@ import { fmt, useMarket, useTimeframe } from "./useMarket";
 import type { MarketKey } from "@/lib/market.functions";
 
 const num = (s: string) => parseFloat(s.replace(/\s/g, ""));
+const dollarPositions = new Set(["AAPL", "NVDA", "BTC", "TSLA"]);
 
 export function Positions() {
   const { data: market } = useMarket();
   const { tf } = useTimeframe();
+  const dollarToEuro = market?.data.USDEUR?.last;
+  const validRate = dollarToEuro !== undefined && Number.isFinite(dollarToEuro) && dollarToEuro > 0;
   const rows = POSITIONS.map((p) => {
     const live = market?.data[p.ticker as MarketKey];
     const qty = num(p.value) / num(p.price);
     const price = live?.last ?? num(p.price);
-    const value = qty * price;
+    const currency = live?.currency ?? (dollarPositions.has(p.ticker) ? "USD" : "EUR");
+    const rate = currency === "EUR" ? 1 : currency === "USD" && validRate ? dollarToEuro : null;
+    const value = rate === null ? null : qty * price * rate;
     const closes = live?.closes;
     const d24 = closes && closes.length > 1 && tf === "1D" ? live.changePct : p.d24;
-    return { ...p, price, value, d24, pnl: live?.changePct ?? p.pnl, closes, cur: live?.currency ?? "EUR", demo: !live };
+    return { ...p, price, value, d24, pnl: live?.changePct ?? p.pnl, closes, cur: currency, demo: !live };
   });
-  const total = rows.reduce((a, r) => a + r.value, 0);
+  const total = rows.every((r) => r.value !== null) ? rows.reduce((a, r) => a + (r.value ?? 0), 0) : null;
   return (
     <section className="mx-auto w-full max-w-7xl px-4 pb-28 md:pb-16">
       <motion.div
@@ -28,14 +33,19 @@ export function Positions() {
         transition={{ duration: 0.7 }}
         className="glass rounded-3xl p-5 sm:p-6"
       >
-        <div className="flex items-baseline justify-between">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display text-xl font-bold tracking-tight">
             Positions <span className="text-muted-foreground">• 12 actifs</span>
           </h2>
           <span className="font-mono text-xs text-muted-foreground">
-            Valeur totale <span className="text-foreground">{fmt(total, 0)} €</span>
+            Valeur totale <span className="text-foreground">{total === null ? "—" : `${fmt(total, 0)} €`}</span>
           </span>
         </div>
+        <p className="mt-2 font-mono text-[11px] text-muted-foreground">
+          {validRate
+            ? `Conversion Yahoo Finance · 1 USD = ${fmt(dollarToEuro, 4)} EUR`
+            : "Taux USD/EUR indisponible · total en euros temporairement indisponible"}
+        </p>
 
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[720px] border-separate border-spacing-y-1 text-left">
@@ -74,7 +84,7 @@ export function Positions() {
                       {up24 ? "+" : ""}
                       {p.d24.toFixed(2)}%
                     </td>
-                    <td className="px-3 py-3 font-mono text-sm">{fmt(p.value, 0)} €</td>
+                    <td className="px-3 py-3 font-mono text-sm">{p.value === null ? "—" : `${fmt(p.value, 0)} €`}</td>
                     <td className="px-3 py-3">
                       <Sparkline seed={p.seed} up={upPnl} values={p.closes} />
                     </td>
