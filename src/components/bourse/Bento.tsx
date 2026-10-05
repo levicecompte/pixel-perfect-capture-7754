@@ -192,7 +192,7 @@ function TopMovers() {
                 {m.ticker[0]}
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-sm font-bold">{m.ticker}</p>
+                 <p className="font-mono text-sm font-bold">{m.ticker}{!live && <span className="ml-2 text-[10px] font-normal text-danger">DÉMO</span>}</p>
                 <p className="truncate text-[11px] text-muted-foreground">{m.name}</p>
               </div>
               <div className="ml-auto flex items-center gap-3">
@@ -258,10 +258,10 @@ function StatsCard() {
   };
   const btc = d?.BTC;
   const stats = [
-    { label: "S&P 500", value: d?.SPX ? fmt(d.SPX.last) : "5 789,10", ...pct(d?.SPX?.changePct, 0.32) },
-    { label: "NASDAQ", value: d?.NDX ? fmt(d.NDX.last) : "18 234,60", ...pct(d?.NDX?.changePct, -0.12) },
-    { label: "Volatilité VIX", value: d?.VIX ? fmt(d.VIX.last) : "13,84", ...pct(d?.VIX?.changePct, -2.1) },
-    { label: "Bitcoin", value: btc ? fmt(btc.last, 0) + " $" : "67 342 $", ...pct(btc?.changePct, 2.14) },
+    { label: "S&P 500", value: d?.SPX ? fmt(d.SPX.last) : "5 789,10", demo: !d?.SPX, ...pct(d?.SPX?.changePct, 0.32) },
+    { label: "NASDAQ", value: d?.NDX ? fmt(d.NDX.last) : "18 234,60", demo: !d?.NDX, ...pct(d?.NDX?.changePct, -0.12) },
+    { label: "Volatilité VIX", value: d?.VIX ? fmt(d.VIX.last) : "13,84", demo: !d?.VIX, ...pct(d?.VIX?.changePct, -2.1) },
+    { label: "Bitcoin", value: btc ? fmt(btc.last, 0) + " $" : "67 342 $", demo: !btc, ...pct(btc?.changePct, 2.14) },
   ];
   return (
     <div className="glass glass-hover rounded-3xl p-5 sm:p-6 lg:col-span-4">
@@ -271,7 +271,7 @@ function StatsCard() {
       <div className="mt-4 grid grid-cols-2 gap-3">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl bg-white/[0.03] p-3">
-            <p className="text-[11px] text-muted-foreground">{s.label}</p>
+            <p className="text-[11px] text-muted-foreground">{s.label}{s.demo && <span className="ml-1 text-danger">· DÉMO</span>}</p>
             <p className="mt-1 font-mono text-lg font-bold">{s.value}</p>
             <p
               className="font-mono text-[11px]"
@@ -312,7 +312,7 @@ export function Bento() {
             Sentiment
           </p>
           <p className="font-display text-4xl font-bold" style={{ color: score >= 50 ? "var(--neon-emerald)" : "var(--neon-red)" }}>
-            {label} {score}
+            {label} {score}{!d && <span className="ml-2 align-middle font-mono text-[10px] text-danger">DÉMO</span>}
           </p>
           <div className="mt-4 h-2 w-full rounded-full bg-white/[0.06]">
             <div
