@@ -91,7 +91,7 @@ export function PortfolioAnalysis() {
       {error && <p role="alert" className="mt-5 border-l-2 border-danger bg-destructive/10 p-3 text-sm text-danger">{error}</p>}
       {(answer || pending) && <div className="mt-7 border-l-2 border-cyan pl-4" aria-live="polite">
         <p className="font-mono text-xs uppercase text-cyan">Synthèse · {analyzedPeriod}{pending && " · En cours…"}</p>
-        <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">{answer || "Analyse des mouvements et des risques…"}</div>
+        <div className="mt-3 whitespace-pre-wrap text-sm leading-7 text-foreground">{answer ? answer.replace(/^#{1,4}\s*/gm, "").replace(/\*\*/g, "") : "Analyse des mouvements et des risques…"}</div>
       </div>}
       <p className="mt-6 text-xs text-muted-foreground">Cours Yahoo Finance selon disponibilité. Les positions saisies sont envoyées au modèle pour cette analyse uniquement. Aucun conseil en investissement.</p>
     </div>

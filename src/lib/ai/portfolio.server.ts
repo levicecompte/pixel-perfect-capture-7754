@@ -7,7 +7,7 @@ export type PortfolioInput = {
   positions: Array<{ symbol: string; name: string; quantity: number; price: number; currency: string; changePct: number; marketTime: number | null }>;
 };
 
-export function analyzePortfolio(input: PortfolioInput) {
+export function analyzePortfolio(input: PortfolioInput, signal?: AbortSignal) {
   const apiKey = process.env['LOVABLE_API_KEY'];
   if (!apiKey) throw new Error("L'analyse IA n'est pas configurée.");
   const runIdFetch = createLovableAiGatewayRunIdFetch();
@@ -20,6 +20,7 @@ export function analyzePortfolio(input: PortfolioInput) {
   const result = streamText({
     model: provider.responses("openai/gpt-6-astra"),
     maxRetries: 0,
+    abortSignal: signal,
     providerOptions: {
       openai: {
         forceReasoning: true,

@@ -36,7 +36,7 @@ export const Route = createFileRoute("/api/analyse-portefeuille")({
             return { symbol: h.symbol, name: label.name, quantity: h.quantity, price: quote.last, currency, changePct: quote.changePct, marketTime: quote.marketTime ?? null };
           });
           if (enriched.some(p => !p)) return Response.json({ error: "Cours Yahoo Finance indisponibles pour une ou plusieurs positions." }, { status: 503 });
-          const { result, runIdFetch } = analyzePortfolio({ period: input.period, positions: enriched.filter((p): p is NonNullable<typeof p> => p !== null) });
+          const { result, runIdFetch } = analyzePortfolio({ period: input.period, positions: enriched.filter((p): p is NonNullable<typeof p> => p !== null) }, request.signal);
           const iterator = result.textStream[Symbol.asyncIterator]();
           // Wait for the first text or an upstream error before committing response headers.
           const first = await iterator.next();
