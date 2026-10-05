@@ -8,7 +8,7 @@ export const MARKET_SYMBOLS = {
 } as const;
 
 export type MarketKey = keyof typeof MARKET_SYMBOLS;
-export interface SymbolData { closes: number[]; volumes: number[]; last: number; changePct: number; currency: string | null }
+export interface SymbolData { closes: number[]; volumes: number[]; last: number; changePct: number; currency: string | null; marketTime?: number }
 export type MarketData = Partial<Record<MarketKey, SymbolData>>;
 
 const RANGES = {
@@ -29,7 +29,7 @@ async function fetchSymbol(symbol: string, range: string, interval: string): Pro
     );
     if (!res.ok) return null;
     const json = (await res.json()) as {
-      chart?: { result?: Array<{ meta?: { currency?: string; chartPreviousClose?: number; regularMarketPrice?: number }; indicators?: { quote?: Array<{ close?: (number | null)[]; volume?: (number | null)[] }> } }> };
+      chart?: { result?: Array<{ meta?: { currency?: string; chartPreviousClose?: number; regularMarketPrice?: number; regularMarketTime?: number }; timestamp?: number[]; indicators?: { quote?: Array<{ close?: (number | null)[]; volume?: (number | null)[] }> } }> };
     };
     const r = json.chart?.result?.[0];
     const q = r?.indicators?.quote?.[0];
@@ -42,7 +42,8 @@ async function fetchSymbol(symbol: string, range: string, interval: string): Pro
     if (closes.length < 2) return null;
     const last = r?.meta?.regularMarketPrice ?? closes[closes.length - 1]!;
     const base = range === "1d" ? (r?.meta?.chartPreviousClose ?? closes[0]!) : closes[0]!;
-    return { closes, volumes, last, changePct: ((last - base) / base) * 100, currency: r?.meta?.currency ?? null };
+    const marketTime = r?.meta?.regularMarketTime ?? r?.timestamp?.at(-1);
+    return { closes, volumes, last, changePct: ((last - base) / base) * 100, currency: r?.meta?.currency ?? null, ...(marketTime === undefined ? {} : { marketTime }) };
   } catch {
     return null;
   }
